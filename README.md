@@ -141,6 +141,6 @@ npm start
 <div align="center">
   <h1 align="center">Editor y Propietario del Bot</h1>
 
-<a href="https://github.com/DanielDiod"><img src="https://github.com/DanielDiod.png" width="300" height="300" alt="David-OFC 🇰🇷"/></a>
+<a href="https://github.com/Diablo-OFC"><img src=https://github.com/Diablo-OFC.png" width="300" height="300" alt="David-OFC 🇰🇷"/></a>
 
 `© nakanoUchiha/ By David-OFC 🇰🇷`
