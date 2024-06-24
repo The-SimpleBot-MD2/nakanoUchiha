@@ -26,7 +26,7 @@ global.prems = []
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 
 global.packname = ``
-global.author = '{\n "bot": {\n   "name": "Sumi - nakanoUchiha",\n     "author": "DAVID-OFC",\n   "status_bot": "active"\n }\n}'
+global.author = `${UD1}\n${UD2}\n${UD5}\n${UD2}\n${UD6}`
 global.wait = '🐢 *nakanoUchiha*'
 global.botname = 'nakanoUchiha'
 global.textbot = `Powered By Starlights Team`
@@ -37,6 +37,15 @@ global.namechannel = '【 ✯ Starlights Team - Oficial Chanel ✰ 】'
 
 global.catalogo = fs.readFileSync('./storage/img/catalogo.png')
 global.miniurl = fs.readFileSync('./storage/img/miniurl.jpg')
+
+//*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
+// edit the El Rasho xdddd
+global.UD1 = '╭ׅׄ̇─ׅ̻ׄ╮۪̇߭︹ׅ̟ׄ̇︹ׅ۪ׄ̇߭︹ׅ̟ׄ̇⊹۪̇߭'
+global.UD2 = '├ׁ̟̇❍✎"
+global.UD3 = 'Sumi - nakanoUchiha'
+global.UD4 = 'DAVID-OFC'
+global.UD5 = 'Bot:'
+global.UD6 = 'Owner:'
 
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 
