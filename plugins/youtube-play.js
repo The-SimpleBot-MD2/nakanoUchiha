@@ -3,6 +3,42 @@ import yts from "yt-search";
 import ytdl from 'ytdl-core';
 import { youtubedl, youtubedlv2 } from '@bochilteam/scraper';
 
+const downloadAudio = async (url) => {
+    const sources = [
+        async () => {
+            const yt = await youtubedl(url).catch(async _ => await youtubedlv2(url));
+            return { dl_url: yt.audio['128kbps'].download, ttl: yt.title };
+        },
+        async () => {
+            const response = await fetch(`https://api.akuari.my.id/downloader/youtube?link=${url}`);
+            const data = await response.json();
+            return { dl_url: data.mp3[1].url, ttl: data.title };
+        },
+        async () => {
+            const response = await fetch(`https://api.lolhuman.xyz/api/ytplay?apikey=${lolkeysapi}&query=${url}`);
+            const data = await response.json();
+            return { dl_url: data.result.audio.link, ttl: data.result.title };
+        },
+        async () => {
+            const response = await fetch(`https://api.lolhuman.xyz/api/ytaudio2?apikey=${lolkeysapi}&url=${url}`);
+            const data = await response.json();
+            return { dl_url: data.result.link, ttl: data.result.title };
+        }
+    ];
+
+    for (const source of sources) {
+        try {
+            const result = await source();
+            if (result.dl_url) {
+                return result;
+            }
+        } catch (error) {
+            console.error(`Error with source: ${error}`);
+        }
+    }
+    throw new Error('No se pudo descargar el audio.');
+};
+
 let handler = async (m, { conn, command, args, text, usedPrefix }) => {
     if (!text) {
         return conn.reply(m.chat, '🍭 Ingresa el título de un video o canción de YouTube.\n\n`Ejemplo:`\n' + `> *${usedPrefix + command}* Gemini Aaliyah - If Only`, m);
@@ -41,61 +77,26 @@ let handler = async (m, { conn, command, args, text, usedPrefix }) => {
         }, { quoted: m });
 
         if (command === 'play') {
-            let q = '128kbps';
-            let v = video.url;
-            let dl_url, ttl;
-
-            const sources = [
-                async () => {
-                    const yt = await youtubedl(v).catch(async _ => await youtubedlv2(v));
-                    return { dl_url: yt.audio[q].download, ttl: yt.title };
-                },
-                async () => {
-                    const dataRE = await fetch(`https://api.akuari.my.id/downloader/youtube?link=${v}`);
-                    const dataRET = await dataRE.json();
-                    return { dl_url: dataRET.mp3[1].url, ttl: video.title };
-                },
-                async () => {
-                    const humanLol = await fetch(`https://api.lolhuman.xyz/api/ytplay?apikey=${lolkeysapi}&query=${video.title}`);
-                    const humanRET = await humanLol.json();
-                    return { dl_url: humanRET.result.audio.link, ttl: video.title };
-                },
-                async () => {
-                    const lolhuman = await fetch(`https://api.lolhuman.xyz/api/ytaudio2?apikey=${lolkeysapi}&url=${v}`);
-                    const lolh = await lolhuman.json();
-                    return { dl_url: lolh.result.link, ttl: lolh.result.title || 'error' };
-                }
-            ];
-
-            for (const source of sources) {
-                try {
-                    const result = await source();
-                    dl_url = result.dl_url;
-                    ttl = result.ttl;
-                    if (dl_url) break;
-                } catch (error) {
-                    console.error(`Error con la fuente: ${error}`);
-                }
-            }
-
-            if (!dl_url) {
+            try {
+                const { dl_url, ttl } = await downloadAudio(video.url);
+                await conn.sendMessage(m.chat, {
+                    audio: { url: dl_url },
+                    mimetype: 'audio/mpeg',
+                    contextInfo: {
+                        externalAdReply: {
+                            title: ttl,
+                            body: "",
+                            thumbnailUrl: video.thumbnail,
+                            mediaType: 1,
+                            showAdAttribution: true,
+                            renderLargerThumbnail: true
+                        }
+                    }
+                }, { quoted: m });
+            } catch (error) {
+                console.error(error);
                 return conn.reply(m.chat, '💔 No se pudo descargar el audio.', m);
             }
-
-            await conn.sendMessage(m.chat, {
-                audio: { url: dl_url },
-                mimetype: 'audio/mpeg',
-                contextInfo: {
-                    externalAdReply: {
-                        title: ttl,
-                        body: "",
-                        thumbnailUrl: video.thumbnail,
-                        mediaType: 1,
-                        showAdAttribution: true,
-                        renderLargerThumbnail: true
-                    }
-                }
-            }, { quoted: m });
         }
     } catch (e) {
         console.error(e);
