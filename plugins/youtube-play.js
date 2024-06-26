@@ -3,7 +3,74 @@ import yts from "yt-search";
 import ytdl from 'ytdl-core';
 import { youtubedl, youtubedlv2 } from '@bochilteam/scraper';
 
-const downloadAudio = async (url) => {
+let handler = async (m, { conn, command, args, text, usedPrefix }) => {
+    if (!text) {
+        return conn.reply(m.chat, `🍭 Ingresa el título de un video o canción de YouTube.\n\nEjemplo:\n> *${usedPrefix + command}* Billie Eilish - Bellyache`, m);
+    }
+
+    let user = global.db.data.users[m.sender];
+    try {
+        const yt_play = await search(args.join(" "));
+        if (!yt_play.length) {
+            return conn.reply(m.chat, '💔 No se encontraron resultados para tu búsqueda.', m);
+        }
+
+        let video = yt_play[0];
+        let additionalText = command === 'play' ? '𝘼𝙐𝘿𝙄𝙊 🔊' : '𝙑𝙄𝘿𝙀𝙊 🎥';
+
+        let txt = `╭─⬣「 *YouTube Play* 」⬣\n`;
+        txt += `│  ≡◦ *🍭 Título ∙* ${video.title}\n`;
+        txt += `│  ≡◦ *📅 Publicado ∙* ${video.ago}\n`;
+        txt += `│  ≡◦ *🕜 Duración ∙* ${video.duration.timestamp}\n`;
+        txt += `│  ≡◦ *👤 Autor ∙* ${video.author.name}\n`;
+        txt += `│  ≡◦ *⛓ Url ∙* ${video.url}\n`;
+        txt += `╰─⬣`;
+
+        // Enviar la información del video
+        await conn.sendMessage(m.chat, {
+            text: txt,
+            contextInfo: {
+                externalAdReply: {
+                    title: video.title,
+                    body: '',
+                    thumbnailUrl: video.thumbnail,
+                    mediaType: 1,
+                    showAdAttribution: true,
+                    renderLargerThumbnail: true
+                }
+            }
+        }, { quoted: m });
+
+        // Descargar y enviar el audio
+        if (command === 'play') {
+            try {
+                const dl_info = await getAudioDownloadLink(video.url);
+                await conn.sendMessage(m.chat, {
+                    audio: { url: dl_info.dl_url },
+                    mimetype: 'audio/mpeg',
+                    contextInfo: {
+                        externalAdReply: {
+                            title: dl_info.ttl,
+                            body: "",
+                            thumbnailUrl: video.thumbnail,
+                            mediaType: 1,
+                            showAdAttribution: true,
+                            renderLargerThumbnail: true
+                        }
+                    }
+                }, { quoted: m });
+            } catch (error) {
+                console.error(error);
+                return conn.reply(m.chat, '💔 No se pudo descargar el audio.', m);
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        await m.reply('💔 Ups, algo salió mal. Intenta de nuevo más tarde.', m);
+    }
+};
+
+const getAudioDownloadLink = async (url) => {
     const sources = [
         async () => {
             const yt = await youtubedl(url).catch(async _ => await youtubedlv2(url));
@@ -33,98 +100,26 @@ const downloadAudio = async (url) => {
                 return result;
             }
         } catch (error) {
-            console.error(`Error with source: ${error}`);
+            console.error(`Error con la fuente: ${error}`);
         }
     }
     throw new Error('No se pudo descargar el audio.');
 };
 
-let handler = async (m, { conn, command, args, text, usedPrefix }) => {
-    if (!text) {
-        return conn.reply(m.chat, '🍭 Ingresa el título de un video o canción de YouTube.\n\n`Ejemplo:`\n' + `> *${usedPrefix + command}* Gemini Aaliyah - If Only`, m);
-    }
-
-    let user = global.db.data.users[m.sender];
-    try {
-        const yt_play = await search(args.join(" "));
-        if (!yt_play.length) {
-            return conn.reply(m.chat, '💔 No se encontraron resultados para tu búsqueda.', m);
-        }
-
-        let video = yt_play[0];
-        let additionalText = command === 'play' ? '𝘼𝙐𝘿𝙄𝙊 🔊' : '𝙑𝙄𝘿𝙀𝙊 🎥';
-        
-        let txt = `╭─⬣「 *YouTube Play* 」⬣\n`;
-        txt += `│  ≡◦ *🍭 Título ∙* ${video.title}\n`;
-        txt += `│  ≡◦ *📅 Publicado ∙* ${video.ago}\n`;
-        txt += `│  ≡◦ *🕜 Duración ∙* ${video.duration.timestamp}\n`;
-        txt += `│  ≡◦ *👤 Autor ∙* ${video.author.name}\n`;
-        txt += `│  ≡◦ *⛓ Url ∙* ${video.url}\n`;
-        txt += `╰─⬣`;
-
-        await conn.sendMessage(m.chat, {
-            text: txt,
-            contextInfo: {
-                externalAdReply: {
-                    title: video.title,
-                    body: '',
-                    thumbnailUrl: video.thumbnail,
-                    mediaType: 1,
-                    showAdAttribution: true,
-                    renderLargerThumbnail: true
-                }
-            }
-        }, { quoted: m });
-
-        if (command === 'play') {
-            try {
-                const { dl_url, ttl } = await downloadAudio(video.url);
-                await conn.sendMessage(m.chat, {
-                    audio: { url: dl_url },
-                    mimetype: 'audio/mpeg',
-                    contextInfo: {
-                        externalAdReply: {
-                            title: ttl,
-                            body: "",
-                            thumbnailUrl: video.thumbnail,
-                            mediaType: 1,
-                            showAdAttribution: true,
-                            renderLargerThumbnail: true
-                        }
-                    }
-                }, { quoted: m });
-            } catch (error) {
-                console.error(error);
-                return conn.reply(m.chat, '💔 No se pudo descargar el audio.', m);
-            }
-        }
-    } catch (e) {
-        console.error(e);
-        await m.reply('💔 Ups, algo salió mal. Intenta de nuevo más tarde.');
-    }
+const search = async (query, options = {}) => {
+    const searchResults = await yts.search({ query, hl: "es", gl: "ES", ...options });
+    return searchResults.videos;
 };
 
-handler.help = ["play <búsqueda>"];
-handler.tags = ["downloader"];
-handler.command = ["play", "play2"];
-handler.register = true;
-
-export default handler;
-
-async function search(query, options = {}) {
-    const search = await yts.search({ query, hl: "es", gl: "ES", ...options });
-    return search.videos;
-}
-
-function MilesNumber(number) {
+const MilesNumber = (number) => {
     const exp = /(\d)(?=(\d{3})+(?!\d))/g;
     const rep = "$1.";
     let arr = number.toString().split(".");
     arr[0] = arr[0].replace(exp, rep);
     return arr[1] ? arr.join(".") : arr[0];
-}
+};
 
-function secondString(seconds) {
+const secondString = (seconds) => {
     seconds = Number(seconds);
     var d = Math.floor(seconds / (3600 * 24));
     var h = Math.floor((seconds % (3600 * 24)) / 3600);
@@ -135,4 +130,11 @@ function secondString(seconds) {
     var mDisplay = m > 0 ? m + (m == 1 ? " minuto, " : " minutos, ") : "";
     var sDisplay = s > 0 ? s + (s == 1 ? " segundo" : " segundos") : "";
     return dDisplay + hDisplay + mDisplay + sDisplay;
-}
+};
+
+handler.help = ["play <búsqueda>"];
+handler.tags = ["downloader"];
+handler.command = ["play", "play2"];
+handler.register = true;
+
+export default handler;
