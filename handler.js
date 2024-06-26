@@ -75,7 +75,7 @@ export async function handler(chatUpdate) {
                     afk: -1,
                     afkReason: '',
                     banned: false,
-                    useDocument: true,
+                    useDocument: false,
                     bank: 0,
                     level: 0,
                 }
