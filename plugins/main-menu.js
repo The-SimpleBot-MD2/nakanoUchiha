@@ -145,6 +145,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     }
     text = text.replace(new RegExp(`%(${Object.keys(replace).sort((a, b) => b.length - a.length).join`|`})`, 'g'), (_, name) => '' + replace[name])
     
+    let vid = 'https://telegra.ph/file/a5b62ca22472c2e43fc5c.mp4'
     const response = await fetch(vid)
     const gif = await response.buffer()
     await conn.sendMessage(m.chat, { video: gif, caption: text.trim(), gifPlayback: true, mentions: [m.sender] }, "MessageVideo", { mimetype: "gif", quoted: m })
