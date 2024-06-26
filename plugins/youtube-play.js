@@ -5,26 +5,26 @@ import { youtubedl, youtubedlv2 } from '@bochilteam/scraper';
 
 let handler = async (m, { conn, command, args, text, usedPrefix }) => {
     if (!text) {
-        return conn.reply(m.chat, `🍭 Ingresa el título de un video o canción de YouTube.\n\nEjemplo:\n> *${usedPrefix + command}* Billie Eilish - Bellyache`, m);
+        return conn.reply(m.chat, `🍭 Oye, se te olvidó poner el título del video o canción de YouTube.\n\nEjemplo:\n> *${usedPrefix + command}* Billie Eilish - Bellyache`, m);
     }
 
     let user = global.db.data.users[m.sender];
     try {
         const yt_play = await search(args.join(" "));
         if (!yt_play.length) {
-            return conn.reply(m.chat, '💔 No se encontraron resultados para tu búsqueda.', m);
+            return conn.reply(m.chat, '💔 ¡Ay caramba! No encontré nada para esa búsqueda. Intenta con otra canción.', m);
         }
 
         let video = yt_play[0];
-        let additionalText = command === 'play' ? '𝘼𝙐𝘿𝙄𝙊 🔊' : '𝙑𝙄𝘿𝙀𝙊 🎥';
+        let additionalText = command === 'play' ? '🎶 Aquí tienes tu audio 🎶' : '🎬 Aquí tienes tu video 🎬';
 
-        let txt = `╭─⬣「 *YouTube Play* 」⬣\n`;
-        txt += `│  ≡◦ *🍭 Título ∙* ${video.title}\n`;
-        txt += `│  ≡◦ *📅 Publicado ∙* ${video.ago}\n`;
-        txt += `│  ≡◦ *🕜 Duración ∙* ${video.duration.timestamp}\n`;
-        txt += `│  ≡◦ *👤 Autor ∙* ${video.author.name}\n`;
-        txt += `│  ≡◦ *⛓ Url ∙* ${video.url}\n`;
-        txt += `╰─⬣`;
+        let txt = `🎉 *YouTube Play* 🎉\n\n`;
+        txt += `🍭 *Título:* ${video.title}\n`;
+        txt += `📅 *Publicado:* ${video.ago}\n`;
+        txt += `🕒 *Duración:* ${video.duration.timestamp}\n`;
+        txt += `👤 *Autor:* ${video.author.name}\n`;
+        txt += `🔗 *Url:* ${video.url}\n`;
+        txt += `\n${additionalText}`;
 
         // Enviar la información del video
         await conn.sendMessage(m.chat, {
@@ -32,7 +32,7 @@ let handler = async (m, { conn, command, args, text, usedPrefix }) => {
             contextInfo: {
                 externalAdReply: {
                     title: video.title,
-                    body: '',
+                    body: '¡Disfruta de tu contenido!',
                     thumbnailUrl: video.thumbnail,
                     mediaType: 1,
                     showAdAttribution: true,
@@ -45,13 +45,14 @@ let handler = async (m, { conn, command, args, text, usedPrefix }) => {
         if (command === 'play') {
             try {
                 const dl_info = await getAudioDownloadLink(video.url);
+                console.log(`🔗 Enlace de descarga del audio: ${dl_info.dl_url}`);  // Log de depuración
                 await conn.sendMessage(m.chat, {
                     audio: { url: dl_info.dl_url },
                     mimetype: 'audio/mpeg',
                     contextInfo: {
                         externalAdReply: {
                             title: dl_info.ttl,
-                            body: "",
+                            body: "¡Espero que te guste! 🎧",
                             thumbnailUrl: video.thumbnail,
                             mediaType: 1,
                             showAdAttribution: true,
@@ -60,13 +61,13 @@ let handler = async (m, { conn, command, args, text, usedPrefix }) => {
                     }
                 }, { quoted: m });
             } catch (error) {
-                console.error(error);
-                return conn.reply(m.chat, '💔 No se pudo descargar el audio.', m);
+                console.error(`Error al descargar el audio: ${error.message}`);
+                return conn.reply(m.chat, '💔 ¡Oh no! No pude descargar el audio. Intenta más tarde. 🥲', m);
             }
         }
     } catch (e) {
-        console.error(e);
-        await m.reply('💔 Ups, algo salió mal. Intenta de nuevo más tarde.', m);
+        console.error(`Error general: ${e.message}`);
+        await m.reply('💔 ¡Vaya! Algo salió mal. Intenta de nuevo más tarde. 🤔', m);
     }
 };
 
@@ -100,7 +101,7 @@ const getAudioDownloadLink = async (url) => {
                 return result;
             }
         } catch (error) {
-            console.error(`Error con la fuente: ${error}`);
+            console.error(`Error con la fuente: ${error.message}`);
         }
     }
     throw new Error('No se pudo descargar el audio.');
