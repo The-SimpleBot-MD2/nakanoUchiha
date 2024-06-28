@@ -22,7 +22,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const packageJsonPath = join(__dirname, '../package.json')
 const { name, author, version: versionSB, description } = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
 
-let folderBot = 'GataBotSession', nameBotMD = 'GataBot-MD', opcion = ''
+let folderBot = 'SubBotSession', nameBotMD = 'SubBot-TK', opcion = ''
 let handler = async (m, { conn: _conn, args, usedPrefix, command, isOwner, text }) => {
 if (!global.db.data.settings[conn.user.jid].jadibotmd) return _conn.sendMessage(m.chat, { text: `${lenguajeGB['smsSoloOwnerJB']()}` }, { quoted: m })
   
@@ -94,7 +94,7 @@ if (!fs.existsSync(`./${folderBot}/` + authFolderB + "/creds.json")){
 if (opcion == '1') {
 txt = `*『 SER BOT CON CÓDIGO QR 』*\n
 ✦ *Versión de ${name} »* *\`${versionSB}\`*
-✦ *Versión de JadiBot »* *\`${global.vsJB}\`*
+✦ *Versión de SubBot TK »* *\`${global.vsJB}\`*
 ✦ *Descripción »* _${description}_\n
 *No sólo el diseño del mensaje se ha renovado. ✨ ¡Disfruta de ${name}!*\n
 > ➡️ *Usando otro celular o en la PC escanea este código QR para convertirte en Sub Bot de ${name} 🐈*\n\n*1️⃣ Diríjase a los tres puntos en la esquina superior derecha*\n*2️⃣ Ir a la opción "Dispositivos vinculados" y use el botón "Vincular un dispositivo"*\n*3️⃣ Escanee este codigo QR para iniciar sesión*\n\n> 📢 *¡Este código QR expira en 50 segundos!*\n
@@ -102,7 +102,7 @@ txt = `*『 SER BOT CON CÓDIGO QR 』*\n
 } else {  
 txt = `*『 SER BOT CON CÓDIGO DE 8 DÍGITOS 』*\n
 ✦ *Versión de ${name} »* *\`${versionSB}\`*
-✦ *Versión de JadiBot »* *\`${global.vsJB}\`*
+✦ *Versión de SubBot TK »* *\`${global.vsJB}\`*
 ✦ *Descripción »* _${description}_\n
 *No sólo el diseño del mensaje se ha renovado. ✨ ¡Disfruta de ${name}!*\n
 > *Se enviará un código para ser Sub Bot*\n\n1️⃣ *Diríjase a los tres puntos en la esquina superior derecha*\n\n2️⃣ *Selecciona "Dispositivos vinculados" y use el botón "Vincular un dispositivo"*\n\n3️⃣ *Selecciona en la parte inferior "Vincular con el número de teléfono"*\n\n4️⃣ *Introduzca el código de 8 dígitos*\n
